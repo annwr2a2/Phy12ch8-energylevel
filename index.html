@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مخطط مستويات الطاقة الرسمي للامتحانات - الأستاذ أنور البلوشي</title>
+    <style>
+        /* إعدادات الخطوط والتباين العالي جداً للرؤية والنسخ للامتحانات */
+        * {
+            font-family: 'Arial', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 900 !important; /* خط عريض جداً لجميع العناصر بدون استثناء لضمان الرؤية الصفية */
+            box-sizing: border-box;
+            color: #111111; /* لون داكن جداً لأعلى تباين صفي */
+        }
+
+        body {
+            background-color: #f8fafc; 
+            margin: 0;
+            padding: 15px;
+        }
+
+        .container {
+            max-width: 950px; /* عمود واحد متسلسل رأسي بالكامل يتلاءم مع الحواسب والهواتف */
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        /* الهيكل المشترك للأطر المتسلسلة عمودياً */
+        .frame-box {
+            background-color: #ffffff;
+            border: 4px solid #111111;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px; 
+            width: 100%;
+        }
+
+        /* الإطار الأول: التحكم الرئيسي */
+        .frame-control {
+            background-color: #eef2f7;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin: 0 0 15px 0;
+            color: #002b5b;
+            line-height: 1.4;
+        }
+
+        .audio-btn {
+            background-color: #008cba;
+            color: #ffffff;
+            border: 3px solid #111111;
+            padding: 12px 20px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 100%;
+        }
+        .audio-btn * { color: #fff !important; }
+
+        .selector-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            background: #ffffff;
+            padding: 15px;
+            border: 3px solid #111111;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .selector-item {
+            display: flex;
+            flex-direction: column;
+            text-align: right;
+            gap: 5px;
+        }
+
+        select, button {
+            padding: 12px;
+            font-size: 1.05rem;
+            border: 3px solid #111111;
+            border-radius: 6px;
+            background-color: #ffffff;
+            cursor: pointer;
+            max-width: 100%;
+        }
+
+        .atom-select { background-color: #ffcc00; }
+        .unit-select { background-color: #b3e5fc; }
+
+        /* الإطار الثاني: الرسم البياني */
+        .frame-visual {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .frame-title {
+            font-size: 1.25rem;
+            color: #002b5b;
+            margin: 0 0 15px 0;
+            width: 100%;
+            border-bottom: 3px solid #111111;
+            padding-bottom: 8px;
+        }
+
+        /* إعدادات مرونة الكانفاس ليتلاءم تماماً مع الهواتف والتابلت والكمبيوتر دون تشويه الإحداثيات */
+        canvas {
+            background-color: #ffffff; 
+            border: 3px solid #111111;
+            border-radius: 4px;
+            width: 100%;
+            max-width: 630px; /* العرض الأقصى على الكمبيوتر */
+            height: auto; /* الحفاظ على النسبة الهندسية تلقائياً على الشاشات الصغيرة */
+        }
+
+        /* الإطار الثالث: الحسابات والقيم الرياضية */
+        .frame-math {
+            background-color: #ffffff;
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background-color: #fff9e6;
+            border: 3px solid #111111;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .card-title { font-size: 1rem; color: #444; margin-bottom: 5px; }
+        
+        .card-value { 
+            font-size: 1.3rem; 
+            color: #b60000; 
+            direction: ltr !important; 
+            display: inline-block;
+        }
+
+        /* حاوية مرنة لحماية الجدول من التمدد خارج شاشة الهاتف */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid #111111;
+            border-radius: 6px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 500px; /* يضمن عدم تلاحم الأعمدة عند التصفح من الهاتف */
+        }
+
+        th, td {
+            border: 2px solid #111111;
+            padding: 10px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        th { background-color: #eef2f7; }
+        
+        .word-equation {
+            direction: ltr !important;
+            text-align: center;
+            font-family: 'Cambria Math', 'Times New Roman', Arial, sans-serif;
+            font-style: italic;
+        }
+
+        /* الإطار الرابع والأخير: المسائل والتقييم الصفي */
+        .frame-quiz {
+            background-color: #fff5f5;
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            background-color: #ffffff;
+            padding: 15px;
+            border: 3px solid #111111;
+            border-radius: 8px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background-color: #ffffff;
+            padding: 15px;
+            font-size: 1.15rem;
+            text-align: center; 
+            border: 3px solid #111111;
+            border-radius: 8px;
+            direction: ltr !important;
+        }
+
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.9; }
+        .correct-choice { background-color: #2ecc71 !important; color: white !important; }
+        .correct-choice * { color: white !important; }
+        .wrong-choice { background-color: #e74c3c !important; color: white !important; }
+        .wrong-choice * { color: white !important; }
+
+        .solution-box {
+            margin-top: 15px;
+            background-color: #ffffff;
+            border: 4px dashed #e74c3c;
+            border-radius: 8px;
+            padding: 20px;
+            display: none;
+        }
+
+        .math-step-block {
+            direction: ltr !important;
+            text-align: left;
+            background-color: #f1f4f9;
+            padding: 12px;
+            border-left: 5px solid #e74c3c;
+            border-radius: 4px;
+            margin: 8px 0 15px 0;
+            font-family: 'Cambria Math', 'Times New Roman', sans-serif;
+            overflow-x: auto; /* حماية خطوات الحل في الشاشات الصغيرة */
+        }
+
+        .action-btn {
+            background-color: #27ae60;
+            color: white !important;
+            width: 100%;
+            margin-top: 15px;
+            font-size: 1.25rem;
+            padding: 14px;
+            border: 3px solid #111111;
+            border-radius: 8px;
+        }
+        .action-btn * { color: white !important; }
+
+        /* 📱 شاشات الهواتف الذكية والأجهزة الصغيرة (إعادة هيكلة الواجهة لسهولة اللمس) */
+        @media (max-width: 680px) {
+            body { padding: 10px; }
+            h1 { font-size: 1.4rem; }
+            .selector-grid { grid-template-columns: 1fr; gap: 10px; padding: 10px; }
+            .cards-container { grid-template-columns: 1fr; gap: 10px; }
+            .options-grid { grid-template-columns: 1fr; gap: 10px; }
+            .option-btn { padding: 12px; font-size: 1.05rem; }
+            .frame-box { padding: 15px; margin-bottom: 20px; }
+            .frame-title { font-size: 1.15rem; }
+        }
+
+        footer {
+            background-color: #111111;
+            color: #ffffff;
+            text-align: center;
+            padding: 25px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            width: 100%;
+        }
+        footer * { color: #ffffff !important; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="frame-box frame-control">
+        <h1>لوحة تحكم مخطط مستويات الطاقة المتجاوب للمنصات الرقمية</h1>
+        <button class="audio-btn" onclick="playLessonExplanation()">
+            🔊 اضغط للاستماع إلى الشرح الصوتي للأستاذ أنور البلوشي
+        </button>
+        
+        <div class="selector-grid">
+            <div class="selector-item">
+                <label>⚛️ اختر نوع الذرة الكيميائية:</label>
+                <select id="atomType" class="atom-select" onchange="initAtomChange()">
+                    <option value="hydrogen" selected>ذرة الهيدروجين (Z = 1)</option>
+                    <option value="helium">أيون الهيليوم الأحادي (Z = 2)</option>
+                    <option value="lithium">أيون الليثيوم الثنائي (Z = 3)</option>
+                </select>
+            </div>
+            <div class="selector-item">
+                <label>⚙️ وحدة قياس الطاقة المعروضة:</label>
+                <select id="energyUnit" class="unit-select" onchange="updateSimulation()">
+                    <option value="eV" selected>إلكترون فولت (eV)</option>
+                    <option value="J">الجول (J)</option>
+                </select>
+            </div>
+            <div class="selector-item">
+                <label>مستوى الطاقة الابتدائي (Initial):</label>
+                <select id="initialLevel" onchange="updateSimulation()">
+                    <option value="1">n = 1</option>
+                    <option value="2" selected>n = 2</option>
+                    <option value="3">n = 3</option>
+                    <option value="4">n = 4</option>
+                    <option value="5">n = 5</option>
+                    <option value="inf">n = ∞</option>
+                </select>
+            </div>
+            <div class="selector-item">
+                <label>مستوى الطاقة النهائي (Final):</label>
+                <select id="finalLevel" onchange="updateSimulation()">
+                    <option value="1" selected>n = 1</option>
+                    <option value="2">n = 2</option>
+                    <option value="3">n = 3</option>
+                    <option value="4">n = 4</option>
+                    <option value="5">n = 5</option>
+                    <option value="inf">n = ∞</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="frame-box frame-visual">
+        <div class="frame-title">🖼️ الإطار الثاني: الرسم البياني الهندسي المعتمد للامتحانات النهائية (5 مستويات + ∞)</div>
+        <canvas id="examCanvas" width="630" height="420"></canvas>
+        <button class="action-btn" style="background-color:#002b5b;" onclick="triggerTransition()">⚡ محاكاة حركة القفزة ورسم موجة الفوتون</button>
+    </div>
+
+    <div class="frame-box frame-math">
+        <div class="frame-title">📊 الإطار الثالث: لوحة المعطيات والحسابات الرياضية المنهجية الفورية</div>
+        <div class="cards-container">
+            <div class="card">
+                <div class="card-title">طاقة الفوتون الحالية المحسوبة (ΔE)</div>
+                <div class="card-value" id="cardEnergy">10.20 eV</div>
+            </div>
+            <div class="card">
+                <div class="card-title">الطول الموجي المصاحب للفوتون (λ)</div>
+                <div class="card-value" id="cardWavelength">122 nm</div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>المتغير الفيزيائي بالمخطط</th>
+                        <th>القانون الرياضي المنهجي</th>
+                        <th>القيمة المحسوبة والوحدة (LTR)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>طاقة المستوى العالي المختار</td>
+                        <td class="word-equation">E<sub>high</sub></td>
+                        <td class="word-equation" id="tableEHigh">-3.40 eV</td>
+                    </tr>
+                    <tr>
+                        <td>طاقة المستوى الأدنى المختار</td>
+                        <td class="word-equation">E<sub>low</sub></td>
+                        <td class="word-equation" id="tableELow">-13.60 eV</td>
+                    </tr>
+                    <tr>
+                        <td>مقدار فرق الطاقة الكلي</td>
+                        <td class="word-equation">ΔE = E<sub>high</sub> - E<sub>low</sub></td>
+                        <td class="word-equation" id="tableDeltaE">10.20 eV</td>
+                    </tr>
+                    <tr>
+                        <td>تردد الفوتون المنبعث/الممتص</td>
+                        <td class="word-equation">f = ΔE / h</td>
+                        <td class="word-equation" id="tableFrequency">2.46 × 10<sup>15</sup> Hz</td>
+                    </tr>
+                    <tr>
+                        <td>السلسلة الطيفية المتوافقة</td>
+                        <td>حسب مستوى الاستقرار النطاقي</td>
+                        <td id="tableRegion" style="font-weight:900;">Lyman Series</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="frame-box frame-quiz">
+        <div class="frame-title" style="color:#c0392b; border-bottom-color:#c0392b;">🎯 الإطار الرابع: قسم المسائل التدريبية الدقيقة علمياً (مشتتات ذكية مبنية على قيم المنهج الحقيقية)</div>
+        <div id="questionContainer" class="question-text">
+            جاري إعداد المسألة الفيزيائية المنهجية الدقيقة...
+        </div>
+        
+        <div class="options-grid" id="optionsContainer">
+            </div>
+
+        <div class="solution-box" id="solutionBox">
+            <h3 style="color:#e74c3c; margin-top:0;">📝 خطوات الحل المنهجي بالتفصيل الممل (Word Equation Style):</h3>
+            <div id="solutionContent"></div>
+        </div>
+
+        <button class="action-btn" onclick="generateNewQuestion()">🔄 توليد مسألة عشوائية جديدة وتصفير الإجابات</button>
+    </div>
+
+    <footer>
+        تطوير وبرمجة النظام الامتحاني المتجاوب مع الكمبيوتر والهاتف: الأستاذ أنور البلوشي<br>
+        سلطنة عمان - وزارة التربية والتعليم<br>
+        للتواصل والاستفسار هاتفياً أو عبر الواتساب الفوري: 92818606 (00968)
+    </footer>
+
+</div>
+
+<script>
+    // الثوابت الفيزيائية الدقيقة حسب المنهج العماني وبدون كود ليتك
+    const h = 6.63e-34; 
+    const c = 3.00e8;   
+    const eV_to_J = 1.6e-19; 
+
+    // قاعدة البيانات العلمية الدقيقة للمستويات الخمسة واللانهاية لكل الذرات والأيونات المعتمدة
+    const atomDatabase = {
+        hydrogen: {
+            name: "ذرة الهيدروجين",
+            Z: 1,
+            eV: { 1: -13.60, 2: -3.40, 3: -1.51, 4: -0.85, 5: -0.54, inf: 0.00 },
+            J: { 1: -2.18, 2: -0.54, 3: -0.24, 4: -0.14, 5: -0.09, inf: 0.00 } // × 10^-18 J
+        },
+        helium: {
+            name: "أيون الهيليوم الأحادي",
+            Z: 2,
+            eV: { 1: -54.40, 2: -13.60, 3: -6.04, 4: -3.40, 5: -2.18, inf: 0.00 },
+            J: { 1: -8.72, 2: -2.18, 3: -0.97, 4: -0.54, 5: -0.35, inf: 0.00 } 
+        },
+        lithium: {
+            name: "أيون الليثيوم الثنائي",
+            Z: 3,
+            eV: { 1: -122.40, 2: -30.60, 3: -13.60, 4: -7.65, 5: -4.90, inf: 0.00 },
+            J: { 1: -19.62, 2: -4.91, 3: -2.18, 4: -1.23, 5: -0.78, inf: 0.00 } 
+        }
+    };
+
+    const canvas = document.getElementById('examCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // إحداثيات رسم المخطط لضمان الدقة الكاملة ونقاء النصوص والخطوط في الطباعة والمنصات الرقمية
+    const lineStartX = 20;
+    const lineEndX = 370; 
+    const textLabelX = 385; 
+    const transitionX = 160; 
+
+    let currentAnimation = { isAnimating: false, progress: 0, jumpProgress: 0 };
+
+    window.onload = function() {
+        updateSimulation();
+        generateNewQuestion();
+    };
+
+    function initAtomChange() {
+        updateSimulation();
+        generateNewQuestion();
+    }
+
+    // دالة حساب المواضع لتعكس التصميم الهندسي الواقعي المتقارب لأعلى بنقاء كامل
+    function getLevelY(key) {
+        const baseOffset = 365; // خط المستوى n=1 بالأسفل
+        if (key === "1") return baseOffset;
+        if (key === "2") return baseOffset - 180;
+        if (key === "3") return baseOffset - 180 - 90;
+        if (key === "4") return baseOffset - 180 - 90 - 45;
+        if (key === "5") return baseOffset - 180 - 90 - 45 - 25;
+        if (key === "inf") return baseOffset - 180 - 90 - 45 - 25 - 20; 
+        return baseOffset;
+    }
+
+    function updateSimulation() {
+        const atom = document.getElementById('atomType').value;
+        const unit = document.getElementById('energyUnit').value;
+        let n_initial = document.getElementById('initialLevel').value;
+        let n_final = document.getElementById('finalLevel').value;
+
+        if (n_final === n_initial) {
+            drawInitialState();
+            return;
+        }
+
+        let E_initial_J = atomDatabase[atom].J[n_initial] * 1e-18;
+        let E_final_J = atomDatabase[atom].J[n_final] * 1e-18;
+        let deltaE_J = Math.abs(E_initial_J - E_final_J);
+        
+        let frequency = deltaE_J / h;
+        let lambda = c / frequency;
+        let lambdaNM = lambda * 1e9;
+
+        let eInit_val = atomDatabase[atom][unit][n_initial];
+        let eFinal_val = atomDatabase[atom][unit][n_final];
+        
+        let eHigh_val = Math.max(eInit_val, eFinal_val);
+        let eLow_val = Math.min(eInit_val, eFinal_val);
+        let deltaE_val = Math.abs(eInit_val - eFinal_val);
+
+        document.getElementById('cardEnergy').innerHTML = deltaE_val.toFixed(2) + (unit === "eV" ? " eV" : " × 10<sup>-18</sup> J");
+        document.getElementById('cardWavelength').innerHTML = isFinite(lambdaNM) ? Math.round(lambdaNM) + " nm" : "∞ (Ionization)";
+
+        document.getElementById('tableEHigh').innerHTML = (n_initial === "inf" || n_final === "inf" ? "0.00" : eHigh_val.toFixed(2)) + (unit === "eV" ? " eV" : " × 10<sup>-18</sup> J");
+        document.getElementById('tableELow').innerHTML = eLow_val.toFixed(2) + (unit === "eV" ? " eV" : " × 10<sup>-18</sup> J");
+        document.getElementById('tableDeltaE').innerHTML = deltaE_val.toFixed(2) + (unit === "eV" ? " eV" : " × 10<sup>-18</sup> J");
+        document.getElementById('tableFrequency').innerHTML = isFinite(frequency) ? (frequency / 1e15).toFixed(2) + " × 10<sup>15</sup> Hz" : "N/A";
+
+        let targetLevel = n_initial === "inf" ? parseInt(n_final) : (n_final === "inf" ? parseInt(n_initial) : Math.min(parseInt(n_initial), parseInt(n_final)));
+        let seriesText = "";
+        if (targetLevel === 1) seriesText = "ليمان - Lyman Series";
+        else if (targetLevel === 2) seriesText = "بالمر - Balmer Series";
+        else if (targetLevel === 3) seriesText = "باشين - Paschen Series";
+        else seriesText = "سلسلة طيفية أخرى";
+        
+        document.getElementById('tableRegion').innerText = seriesText;
+
+        drawInitialState();
+    }
+
+    function drawInitialState() {
+        let n_initial = document.getElementById('initialLevel').value;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawStaticLevels();
+        drawElectronAtY(getLevelY(n_initial));
+    }
+
+    function drawStaticLevels() {
+        const atom = document.getElementById('atomType').value;
+        const unit = document.getElementById('energyUnit').value;
+        
+        ctx.fillStyle = "#ffffff"; 
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const levels = ["1", "2", "3", "4", "5", "inf"];
+
+        levels.forEach((key) => {
+            let y = getLevelY(key);
+            
+            ctx.beginPath();
+            ctx.moveTo(lineStartX, y);
+            ctx.lineTo(lineEndX, y);
+            
+            if (key === "inf") {
+                ctx.setLineDash([5, 5]); 
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = "#444444";
+            } else {
+                ctx.setLineDash([]);
+                ctx.lineWidth = key === "1" ? 4 : 2.5; 
+                ctx.strokeStyle = "#000000";
+            }
+            ctx.stroke();
+
+            ctx.fillStyle = "#000000"; 
+            ctx.font = "900 14px Arial";
+            ctx.textAlign = "left";
+            
+            let displayN = key === "inf" ? "n = \u221E" : "n = " + key;
+            let val = atomDatabase[atom][unit][key];
+            let unitLabel = unit === "eV" ? " eV" : " × 10\u207B\u00B9\u207B J";
+            let txt = displayN + "   [" + (key === "inf" ? "0.00" : val.toFixed(2)) + unitLabel + "]";
+            
+            ctx.fillText(txt, textLabelX, y + 5);
+        });
+        ctx.setLineDash([]); 
+    }
+
+    function drawElectronAtY(y) {
+        ctx.beginPath();
+        ctx.arc(transitionX, y, 9, 0, 2 * Math.PI);
+        ctx.fillStyle = "#000000"; 
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#000000";
+        ctx.stroke();
+    }
+
+    function drawTransitionArrow(startY, endY) {
+        ctx.beginPath();
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = "#000000";
+        ctx.moveTo(transitionX, startY);
+        ctx.lineTo(transitionX, endY);
+        ctx.stroke();
+
+        ctx.fillStyle = "#000000";
+        ctx.beginPath();
+        if (endY > startY) { 
+            ctx.moveTo(transitionX, endY);
+            ctx.lineTo(transitionX - 6, endY - 12);
+            ctx.lineTo(transitionX + 6, endY - 12);
+        } else { 
+            ctx.moveTo(transitionX, endY);
+            ctx.lineTo(transitionX - 6, endY + 12);
+            ctx.lineTo(transitionX + 6, endY + 12);
+        }
+        ctx.fill();
+    }
+
+    function drawWavyPhoton(levelY, direction, progress) {
+        ctx.beginPath();
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = "#0000ff"; 
+        
+        const wavelength_param = 0.12; 
+        const amplitude = 12;        
+        const startX = lineEndX - 20; 
+
+        if (direction === "absorption") {
+            for (let x = startX; x >= startX - progress; x--) {
+                if (x < transitionX) break;
+                let y = levelY + Math.sin((x - transitionX) * wavelength_param) * amplitude;
+                if (x === startX) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            ctx.fillStyle = "#0000ff"; 
+            ctx.beginPath();
+            let arrowX = startX - progress;
+            if (arrowX < transitionX) arrowX = transitionX;
+            ctx.moveTo(arrowX, levelY);
+            ctx.lineTo(arrowX + 11, levelY - 6);
+            ctx.lineTo(arrowX + 11, levelY + 6);
+            ctx.fill();
+
+            ctx.fillStyle = "#0000ff";
+            ctx.font = "900 14px Arial";
+            ctx.fillText("فوتون ممتص", transitionX + 35, levelY - 15);
+        } else {
+            for (let x = transitionX; x <= transitionX + progress; x++) {
+                if (x > startX) break;
+                let y = levelY + Math.sin((x - transitionX) * wavelength_param) * amplitude;
+                if (x === transitionX) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            ctx.fillStyle = "#0000ff"; 
+            ctx.beginPath();
+            let arrowX = transitionX + progress;
+            if (arrowX > startX) arrowX = startX;
+            ctx.moveTo(arrowX, levelY);
+            ctx.lineTo(arrowX - 11, levelY - 6);
+            ctx.lineTo(arrowX - 11, levelY + 6);
+            ctx.fill();
+
+            ctx.fillStyle = "#0000ff";
+            ctx.font = "900 14px Arial";
+            ctx.fillText("فوتون منبعث", transitionX + 35, levelY - 15);
+        }
+    }
+
+    function triggerTransition() {
+        if (currentAnimation.isAnimating) return;
+        currentAnimation.isAnimating = true;
+        let n_initial = document.getElementById('initialLevel').value;
+        let n_final = document.getElementById('finalLevel').value;
+        
+        if (n_initial === n_final) {
+            currentAnimation.isAnimating = false;
+            return;
+        }
+
+        let y_initial = getLevelY(n_initial);
+        let y_final = getLevelY(n_final);
+        
+        const type = y_initial < y_final ? "emission" : "absorption";
+        let progress = 0;
+        let jumpProgress = 0;
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawStaticLevels();
+
+            if (type === "emission") {
+                if (jumpProgress < 100) {
+                    jumpProgress += 4;
+                    let currentY = y_initial + (y_final - y_initial) * (jumpProgress / 100);
+                    drawTransitionArrow(y_initial, currentY);
+                    drawElectronAtY(currentY);
+                } else if (progress < (lineEndX - transitionX)) {
+                    progress += 5;
+                    drawTransitionArrow(y_initial, y_final);
+                    drawWavyPhoton(y_final, "emission", progress);
+                    drawElectronAtY(y_final);
+                } else {
+                    currentAnimation.isAnimating = false;
+                    updateSimulation();
+                    return;
+                }
+            } else {
+                if (progress < (lineEndX - transitionX)) {
+                    progress += 5;
+                    drawWavyPhoton(y_initial, "absorption", progress);
+                    drawElectronAtY(y_initial);
+                } else if (jumpProgress < 100) {
+                    jumpProgress += 4;
+                    let currentY = y_initial + (y_final - y_initial) * (jumpProgress / 100);
+                    drawTransitionArrow(y_initial, currentY);
+                    drawElectronAtY(currentY);
+                } else {
+                    currentAnimation.isAnimating = false;
+                    updateSimulation();
+                    return;
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+        animate();
+    }
+
+    function playLessonExplanation() {
+        window.speechSynthesis.cancel(); 
+        let lessonText = "مرحباً بكم يا أبنائي الطلاب ... تم تحديث البرمجية اليوم لتصبح متوافقة تماماً ومتجاوبة مع شاشات الحواسب، والهواتف الذكية، والتابلت ... لمتابعة الحسابات والمسائل بدقة علمية صارمة في أي وقت ومن أي جهاز ... بالتوفيق لكم جميعاً.";
+        let utterance = new SpeechSynthesisUtterance(lessonText);
+        utterance.lang = 'ar-OM'; 
+        utterance.rate = 0.82;   
+        utterance.pitch = 0.95;   
+        window.speechSynthesis.speak(utterance);
+    }
+
+    let currentCorrectAnswer = 0;
+    let currentQuizData = {};
+
+    function generateNewQuestion() {
+        document.getElementById('solutionBox').style.display = "none";
+        
+        const atomsList = ["hydrogen", "helium", "lithium"];
+        let randomAtom = atomsList[Math.floor(Math.random() * atomsList.length)];
+        let atomNameAr = atomDatabase[randomAtom].name;
+        
+        let n_from_num = Math.floor(Math.random() * 4) + 2; 
+        let n_from = Math.random() > 0.85 ? "inf" : n_from_num.toString();
+        let n_to = (Math.floor(Math.random() * (n_from === "inf" ? 4 : parseInt(n_from) - 1)) + 1).toString();
+        
+        let diff_eV = Math.abs(atomDatabase[randomAtom].eV[n_from] - atomDatabase[randomAtom].eV[n_to]);
+        let diff_J = Math.abs(atomDatabase[randomAtom].J[n_from] - atomDatabase[randomAtom].J[n_to]); 
+        
+        let E_initial_eV = atomDatabase[randomAtom].eV[n_from];
+        let E_final_eV = atomDatabase[randomAtom].eV[n_to];
+        let E_initial_J = atomDatabase[randomAtom].J[n_from];
+        let E_final_J = atomDatabase[randomAtom].J[n_to];
+
+        let freq = (diff_J * 1e-18) / h;
+        let waveNM = Math.round((c / freq) * 1e9);
+        let momentum = (diff_J * 1e-18) / c; 
+
+        const qTypes = ["deltaE", "lambda", "frequency", "e_initial", "e_final", "momentum"];
+        let qType = qTypes[Math.floor(Math.random() * qTypes.length)];
+        let quizUnit = Math.random() > 0.5 ? "eV" : "J"; 
+
+        let questionString = "<b>سؤال امتحان رسمي شامل:</b><br>";
+        let correctAnswerValue = 0;
+        let unitStr = "";
+        let options = [];
+
+        let constantsText = "<br><small style='color:#555;'>[علماً بأن: ثابت بلانك h = 6.63 × 10<sup>-34</sup> J·s ، سرعة الضوء c = 3.00 × 10<sup>8</sup> m/s ، شحنة الإلكترون 1 eV = 1.60 × 10<sup>-19</sup> J]</small>";
+
+        if (qType === "deltaE") {
+            if (quizUnit === "eV") {
+                questionString += "انتقل إلكترون في " + atomNameAr + " بين مستويي طاقة، فنتج عن ذلك فوتون منبعث. إذا كانت طاقة المستوى الابتدائي تساوي <span dir='ltr'> " + E_initial_eV.toFixed(2) + " eV</span> وطاقة المستوى النهائي تساوي <span dir='ltr'> " + E_final_eV.toFixed(2) + " eV</span>، احسب <b>طاقة الفوتون المنبعث</b> بوحدة (<span dir='ltr'>eV</span>)؟";
+                correctAnswerValue = diff_eV.toFixed(2);
+                unitStr = " eV";
+                
+                options.push(correctAnswerValue);
+                options.push(Math.abs(atomDatabase[randomAtom].eV["2"] - atomDatabase[randomAtom].eV["1"]).toFixed(2)); 
+                options.push(Math.abs(atomDatabase[randomAtom].eV["3"] - atomDatabase[randomAtom].eV["1"]).toFixed(2)); 
+                options.push(Math.abs(E_initial_eV).toFixed(2)); 
+            } else {
+                questionString += "انتقل إلكترون في " + atomNameAr + " بين مستويين. إذا علمت أن طاقة المستوى الذي كان فيه الإلكترون تساوي <span dir='ltr'> " + E_initial_J.toFixed(2) + " × 10<sup>-18</sup> J</span> وطاقة المستوى الذي وصل إليه تساوي <span dir='ltr'> " + E_final_J.toFixed(2) + " × 10<sup>-18</sup> J</span>، احسب <b>طاقة الفوتون الناتج</b> بوحدة الجول (<span dir='ltr'>J</span>)؟";
+                correctAnswerValue = diff_J.toFixed(2);
+                unitStr = " × 10<sup>-18</sup> J";
+                
+                options.push(correctAnswerValue);
+                options.push(Math.abs(atomDatabase[randomAtom].J["2"] - atomDatabase[randomAtom].J["1"]).toFixed(2));
+                options.push(Math.abs(atomDatabase[randomAtom].J["3"] - atomDatabase[randomAtom].J["1"]).toFixed(2));
+                options.push(Math.abs(E_initial_J).toFixed(2));
+            }
+        } 
+        else if (qType === "lambda") {
+            questionString += "سقط إلكترون في " + atomNameAr + " من مستوى طاقة ابتدائي طاقته <span dir='ltr'> " + E_initial_J.toFixed(2) + " × 10<sup>-18</sup> J</span> واستقر في مستوى طاقة نهائي طاقته <span dir='ltr'> " + E_final_J.toFixed(2) + " × 10<sup>-18</sup> J</span>، احسب <b>الطول الموجي</b> للفوتون المنبعث بوحدة النانومتر (<span dir='ltr'>nm</span>)؟";
+            correctAnswerValue = waveNM;
+            unitStr = " nm";
+            
+            options.push(correctAnswerValue);
+            let altFreq1 = (Math.abs(atomDatabase[randomAtom].J["2"] - atomDatabase[randomAtom].J["1"]) * 1e-18) / h;
+            options.push(Math.round((c / altFreq1) * 1e9)); 
+            let altFreq2 = (Math.abs(atomDatabase[randomAtom].J["3"] - atomDatabase[randomAtom].J["2"]) * 1e-18) / h;
+            options.push(Math.round((c / altFreq2) * 1e9));
+            options.push(Math.round(waveNM * 0.5)); 
+        } 
+        else if (qType === "frequency") {
+            questionString += "امتص إلكترون مستقر في " + atomNameAr + " فوتوناً أدى إلى إثارته من مستوى طاقة أدنى طاقته <span dir='ltr'> " + E_final_J.toFixed(2) + " × 10<sup>-18</sup> J</span> إلى مستوى طاقة أعلى طاقته <span dir='ltr'> " + E_initial_J.toFixed(2) + " × 10<sup>-18</sup> J</span>، احسب <b>تردد الفوتون الممتص</b> بوحدة الهرتز (<span dir='ltr'>Hz</span>)؟";
+            correctAnswerValue = (freq / 1e15).toFixed(2);
+            unitStr = " × 10<sup>15</sup> Hz";
+            
+            options.push(correctAnswerValue);
+            let altF1 = ((Math.abs(atomDatabase[randomAtom].J["2"] - atomDatabase[randomAtom].J["1"]) * 1e-18) / h) / 1e15;
+            options.push(altF1.toFixed(2));
+            let altF2 = ((Math.abs(atomDatabase[randomAtom].J["3"] - atomDatabase[randomAtom].J["1"]) * 1e-18) / h) / 1e15;
+            options.push(altF2.toFixed(2));
+            options.push((freq / 1e15 * 2).toFixed(2));
+        } 
+        else if (qType === "e_initial") {
+            if (quizUnit === "eV") {
+                questionString += "يهبط إلكترون في " + atomNameAr + " من مستوى طاقة مجهول كان فيه إلى مستوى طاقة نهائي معلوم طاقته <span dir='ltr'> " + E_final_eV.toFixed(2) + " eV</span>. فإذا انبعث نتيجة هذا الانتقال فوتون يحمل طاقة مقدارها <span dir='ltr'> " + diff_eV.toFixed(2) + " eV</span>، احسب <b>طاقة الإلكترون في المستوى الذي كان فيه</b> بوحدة (<span dir='ltr'>eV</span>)؟";
+                correctAnswerValue = E_initial_eV.toFixed(2);
+                unitStr = " eV";
+                
+                options.push(correctAnswerValue);
+                options.push(atomDatabase[randomAtom].eV["1"].toFixed(2));
+                options.push(atomDatabase[randomAtom].eV["2"].toFixed(2));
+                options.push((E_final_eV - diff_eV).toFixed(2)); 
+            } else {
+                questionString += "يهبط إلكترون في " + atomNameAr + " من مستوى طاقة مجهول إلى مستوى طاقة نهائي معلوم طاقته <span dir='ltr'> " + E_final_J.toFixed(2) + " × 10<sup>-18</sup> J</span>. فإذا انبعث نتيجة هذا الانتقال فوتون يحمل طاقة مقدارها <span dir='ltr'> " + diff_J.toFixed(2) + " × 10<sup>-18</sup> J</span>، احسب <b>طاقة الإلكترون في المستوى الابتدائي الذي كان فيه</b> بوحدة (<span dir='ltr'>J</span>)؟";
+                correctAnswerValue = E_initial_J.toFixed(2);
+                unitStr = " × 10<sup>-18</sup> J";
+                
+                options.push(correctAnswerValue);
+                options.push(atomDatabase[randomAtom].J["1"].toFixed(2));
+                options.push(atomDatabase[randomAtom].J["2"].toFixed(2));
+                options.push((E_final_J - parseFloat(diff_J)).toFixed(2));
+            }
+        } 
+        else if (qType === "e_final") {
+            if (quizUnit === "eV") {
+                questionString += "انتقل إلكترون في " + atomNameAr + " من مستوى طاقة ابتدائي معلوم طاقته <span dir='ltr'> " + E_initial_eV.toFixed(2) + " eV</span> إلى مستوى طاقة أدنى سيصل إليه. فإذا كانت طاقة الفوتون المنبعث المصاحب تساوى <span dir='ltr'> " + diff_eV.toFixed(2) + " eV</span>، احسب <b>طاقة الإلكترون في المستوى الذي سيصل إليه</b> بوحدة (<span dir='ltr'>eV</span>)؟";
+                correctAnswerValue = E_final_eV.toFixed(2);
+                unitStr = " eV";
+                
+                options.push(correctAnswerValue);
+                options.push(atomDatabase[randomAtom].eV["1"].toFixed(2));
+                options.push(atomDatabase[randomAtom].eV["2"].toFixed(2));
+                options.push((E_initial_eV + parseFloat(diff_eV)).toFixed(2));
+            } else {
+                questionString += "انتقل إلكترون في " + atomNameAr + " من مستوى طاقة ابتدائي معلوم طاقته <span dir='ltr'> " + E_initial_J.toFixed(2) + " × 10<sup>-18</sup> J</span> إلى مستوى طاقة أدنى سيصل إليه. فإذا انبعث فوتون طاقته تساوى <span dir='ltr'> " + diff_J.toFixed(2) + " × 10<sup>-18</sup> J</span>، احسب <b>طاقة الإلكترون في المستوى النهائي الذي سيصل إليه</b> بوحدة الجول (<span dir='ltr'>J</span>)؟";
+                correctAnswerValue = E_final_J.toFixed(2);
+                unitStr = " × 10<sup>-18</sup> J";
+                
+                options.push(correctAnswerValue);
+                options.push(atomDatabase[randomAtom].J["1"].toFixed(2));
+                options.push(atomDatabase[randomAtom].J["2"].toFixed(2));
+                options.push((E_initial_J + parseFloat(diff_J)).toFixed(2));
+            }
+        } 
+        else if (qType === "momentum") {
+            questionString += "انتقل إلكترون في " + atomNameAr + " من مستوى طاقة علوي طاقته <span dir='ltr'> " + E_initial_J.toFixed(2) + " × 10<sup>-18</sup> J</span> إلى مستوى طاقة أدنى طاقته <span dir='ltr'> " + E_final_J.toFixed(2) + " × 10<sup>-18</sup> J</span>. احسب مقدار <b>كمية تحرك الفوتون المنبعث</b> بوحدة النيوتن في ثانية (<span dir='ltr'>N·s</span>)؟";
+            correctAnswerValue = (momentum / 1e-27).toFixed(2);
+            unitStr = " × 10<sup>-27</sup> N·s";
+            
+            options.push(correctAnswerValue);
+            let altM1 = ((Math.abs(atomDatabase[randomAtom].J["2"] - atomDatabase[randomAtom].J["1"]) * 1e-18) / c) / 1e-27;
+            options.push(altM1.toFixed(2));
+            let altM2 = ((Math.abs(atomDatabase[randomAtom].J["3"] - atomDatabase[randomAtom].J["1"]) * 1e-18) / c) / 1e-27;
+            options.push(altM2.toFixed(2));
+            options.push((momentum / 1e-27 * 1.5).toFixed(2));
+        }
+
+        questionString += constantsText;
+
+        currentQuizData = {
+            qType: qType,
+            quizUnit: quizUnit,
+            atomKey: randomAtom,
+            atomName: atomNameAr,
+            E_initial_eV: E_initial_eV,
+            E_final_eV: E_final_eV,
+            E_initial_J: E_initial_J,
+            E_final_J: E_final_J,
+            diff_eV: diff_eV.toFixed(2),
+            diff_J: diff_J.toFixed(2),
+            waveNM: waveNM,
+            freq: freq,
+            momentum: momentum
+        };
+
+        document.getElementById('questionContainer').innerHTML = questionString;
+
+        let uniqueOptions = [...new Set(options)];
+        while (uniqueOptions.length < 4) {
+            let backupVal = (parseFloat(correctAnswerValue) + (uniqueOptions.length * 1.11)).toFixed(2);
+            uniqueOptions.push(backupVal);
+        }
+
+        uniqueOptions.sort(() => Math.random() - 0.5);
+        currentCorrectAnswer = correctAnswerValue;
+
+        const optionsContainer = document.getElementById('optionsContainer');
+        optionsContainer.innerHTML = "";
+        
+        uniqueOptions.forEach(opt => {
+            let btn = document.createElement('button');
+            btn.className = "option-btn";
+            btn.innerHTML = opt + unitStr;
+            btn.onclick = function() { checkStudentAnswer(opt, btn); };
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function checkStudentAnswer(selectedOpt, selectedButton) {
+        const allButtons = document.getElementsByClassName('option-btn');
+        for (let i = 0; i < allButtons.length; i++) {
+            allButtons[i].disabled = true;
+            if (allButtons[i].innerText.includes(currentCorrectAnswer.toString())) {
+                allButtons[i].classList.add('correct-choice');
+            }
+        }
+
+        if (selectedOpt == currentCorrectAnswer) {
+            selectedButton.classList.add('correct-choice');
+            speakFeedback("برافو إجابة صحيحة");
+        } else {
+            selectedButton.classList.add('wrong-choice');
+            speakFeedback("حاول من جديد يا بني");
+            showStepByStepSolution(); 
+        }
+    }
+
+    function speakFeedback(phrase) {
+        window.speechSynthesis.cancel();
+        let feedbackUtterance = new SpeechSynthesisUtterance(phrase);
+        feedbackUtterance.lang = 'ar-SA';
+        feedbackUtterance.rate = 0.95;
+        window.speechSynthesis.speak(feedbackUtterance);
+    }
+
+    function showStepByStepSolution() {
+        const solBox = document.getElementById('solutionBox');
+        const solContent = document.getElementById('solutionContent');
+        solBox.style.display = "block";
+
+        let textHTML = "";
+        let d = currentQuizData;
+
+        textHTML += "<b>الخطوة 1:</b> استخراج المعطيات الرقمية المباشرة الواردة بنص مسألة الامتحان:<br>";
+        textHTML += "<div class='math-step-block'>";
+        textHTML += "E<sub>high</sub> = " + d.E_initial_eV.toFixed(2) + " eV = " + d.E_initial_J.toFixed(2) + " × 10<sup>-18</sup> J<br>";
+        textHTML += "E<sub>low</sub> = " + d.E_final_eV.toFixed(2) + " eV = " + d.E_final_J.toFixed(2) + " × 10<sup>-18</sup> J";
+        textHTML += "</div>";
+
+        textHTML += "<b>الخطوة 2:</b> حساب فارق طاقة الفوتون الصافي بقانون الطرح المباشر:<br>";
+        textHTML += "<div class='math-step-block'>";
+        textHTML += "ΔE = |E<sub>high</sub> - E<sub>low</sub>|<br>";
+        textHTML += "ΔE (in eV) = " + d.diff_eV + " eV<br>";
+        textHTML += "ΔE (in Joules) = " + d.diff_J + " × 10<sup>-18</sup> J";
+        textHTML += "</div>";
+
+        if (d.qType === "deltaE") {
+            textHTML += "<b>الخطوة 3 والأخيرة:</b> المطلوب في السؤال هو طاقة الفوتون مباشرة بالوحدة المحددة:<br>";
+            textHTML += "<div class='math-step-block'>";
+            textHTML += "ΔE = <b>" + (d.quizUnit === "eV" ? d.diff_eV + " eV" : d.diff_J + " × 10<sup>-18</sup> J") + "</b>";
+            textHTML += "</div>";
+        } 
+        else if (d.qType === "frequency") {
+            textHTML += "<b>الخطوة 3 والأخيرة:</b> حساب تردد الفوتون f من ثابت بلانك h:<br>";
+            textHTML += "<div class='math-step-block'>";
+            textHTML += "f = ΔE / h<br>";
+            textHTML += "f = (" + d.diff_J + " × 10<sup>-18</sup>) / (6.63 × 10 Im<sup>-34</sup>)<br>";
+            textHTML += "f = <b>" + (d.freq / 1e15).toFixed(2) + " × 10<sup>15</sup> Hz</b>";
+            textHTML += "</div>";
+        } 
+        else if (d.qType === "lambda") {
+            textHTML += "<b>الخطوة 3:</b> حساب التردد f أولاً:<br>";
+            textHTML += "<div class='math-step-block'>f = ΔE / h = " + (d.freq / 1e15).toFixed(2) + " × 10<sup>15</sup> Hz</div>";
+            textHTML += "<b>الخطوة 4 والأخيرة:</b> حساب الطول الموجي λ وتحويله لنانومتر بالضرب في 10<sup>9</sup>:<br>";
+            textHTML += "<div class='math-step-block'>";
+            textHTML += "λ = c / f = (3.00 × 10<sup>8</sup>) / (" + (d.freq / 1e15).toFixed(2) + " × 10<sup>15</sup>) = " + (3e8/d.freq).toExponential(2) + " m<br>";
+            textHTML += "λ = " + (3e8/d.freq).toExponential(2) + " × 10<sup>9</sup> nm = <b>" + d.waveNM + " nm</b>";
+            textHTML += "</div>";
+        } 
+        else if (d.qType === "e_initial") {
+            textHTML += "<b>الخطوة 3 والأخيرة:</b> حساب طاقة المستوى الابتدائي (العلوي) المجهول بالتعويض العكسي:<br>";
+            textHTML += "<div class='math-step-block'>";
+            textHTML += "E<sub>high</sub> = E<sub>low</sub> + ΔE<br>";
+            if (d.quizUnit === "eV") {
+                textHTML += "E<sub>high</sub> = (" + d.E_final_eV.toFixed(2) + ") + (" + d.diff_eV + ") = <b>" + d.E_initial_eV.toFixed(2) + " eV</b>";
+            } else {
+                textHTML += "E<sub>high</sub> = (" + d.E_final_J.toFixed(2) + " + " + d.diff_J + ") × 10<sup>-18</sup> = <b>" + d.E_initial_J.toFixed(2) + " × 10<sup>-18</sup> J</b>";
+            }
+            textHTML += "</div>";
+        } 
+        else if (d.qType === "e_final") {
+            textHTML += "<b>الخطوة 3 والأخيرة:</b> حساب طاقة المستوى النهائي (الأدنى) المجهول بالتعويض العكسي:<br>";
+            textHTML += "<div class='math-step-block'>";
+            textHTML += "E<sub>low</sub> = E<sub>high</sub> - ΔE<br>";
+            if (d.quizUnit === "eV") {
+                textHTML += "E<sub>low</sub> = (" + d.E_initial_eV.toFixed(2) + ") - (" + d.diff_eV + ") = <b>" + d.E_final_eV.toFixed(2) + " eV</b>";
+            } else {
+                textHTML += "E<sub>low</sub> = (" + d.E_initial_J.toFixed(2) - " - " + d.diff_J + ") × 10<sup>-18</sup> = <b>" + d.E_final_J.toFixed(2) + " × 10<sup>-18</sup> J</b>";
+            }
+            textHTML += "</div>";
+        }
+        else if (d.qType === "momentum") {
+            textHTML += "<b>الخطوة 3 والأخيرة:</b> حساب كمية تحرك الفوتون p من قانون النسبية المنهجي (الطاقة بالجول / سرعة الضوء):<br>";
+            textHTML += "<div class='math-step-block'>";
+            textHTML += "p = ΔE / c<br>";
+            textHTML += "p = (" + d.diff_J + " × 10<sup>-18</sup>) / (3.00 × 10<sup>8</sup>)<br>";
+            textHTML += "p = <b>" + (d.momentum / 1e-27).toFixed(2) + " × 10<sup>-27</sup> N·s</b>";
+            textHTML += "</div>";
+        }
+
+        solContent.innerHTML = textHTML;
+    }
+</script>
+
+</body>
+</html>
