@@ -166,7 +166,7 @@
             border: 2px solid #111111;
             padding: 10px;
             text-align: center;
-            font-size: 1rem;
+            font-size: 1.1rem;
         }
 
         th { background-color: #eef2f7; }
@@ -401,6 +401,7 @@
         </div>
 
         <button class="action-btn" onclick="generateNewQuestion()">🔄 توليد مسألة عشوائية جديدة وتصفير الإجابات</button>
+        <button class="action-btn" style="background-color: #8e44ad; margin-top: 10px;" onclick="printExamPaperPDF()">🖨️ إصدار ورقة امتحان كاملة + مفتاح الإجابة (PDF)</button>
     </div>
 
     <footer>
@@ -452,7 +453,6 @@
     const canvas = document.getElementById('examCanvas');
     const ctx = canvas.getContext('2d');
     
-    // إحداثيات رسم المخطط لضمان الدقة الكاملة ونقاء النصوص والخطوط في الطباعة والمنصات الرقمية
     const lineStartX = 20;
     const lineEndX = 370; 
     const textLabelX = 385; 
@@ -486,7 +486,6 @@
         return baseOffset;
     }
 
-    // إضافة باراميتر تحكم لمنع تصفير موضع الاستقرار عند نهاية الحركات الموجية
     function updateSimulation(resetToInitial = true) {
         const atom = document.getElementById('atomType').value;
         const unit = document.getElementById('energyUnit').value;
@@ -517,7 +516,6 @@
         let eLow_val = Math.min(eInit_val, eFinal_val);
         let deltaE_val = Math.abs(eInit_val - eFinal_val);
 
-        // تحديث شاشات العرض بجودة HTML المتطابقة مع الوورد من اليسار لليمين
         document.getElementById('cardEnergy').innerHTML = deltaE_val.toFixed(2) + (unit === "eV" ? " eV" : " × 10<sup>-18</sup> J");
         document.getElementById('cardWavelength').innerHTML = isFinite(lambdaNM) ? Math.round(lambdaNM) + " nm" : "∞ (Ionization)";
 
@@ -707,8 +705,8 @@
                     drawElectronAtY(y_final);
                 } else {
                     currentAnimation.isAnimating = false;
-                    currentElectronLevel = n_final; // تثبيت ميكانيكي للإلكترون في المستوى المستقر الجديد
-                    updateSimulation(false); // تحديث الحسابات وإعادة الرسم دون إرجاع الإلكترون للخلف
+                    currentElectronLevel = n_final; 
+                    updateSimulation(false); 
                     return;
                 }
             } else {
@@ -723,8 +721,8 @@
                     drawElectronAtY(currentY);
                 } else {
                     currentAnimation.isAnimating = false;
-                    currentElectronLevel = n_final; // تثبيت ميكانيكي للإلكترون في المستوى المثار الجديد
-                    updateSimulation(false); // تحديث الحسابات وإعادة الرسم دون إرجاع الإلكترون للخلف
+                    currentElectronLevel = n_final; 
+                    updateSimulation(false); 
                     return;
                 }
             }
@@ -733,7 +731,6 @@
         animate();
     }
 
-    // تحديث الشرح الصوتي ليكون موجهاً للاختبارات والمفاهيم الفيزيائية البحتة
     function playLessonExplanation() {
         window.speechSynthesis.cancel(); 
         let lessonText = "مرحباً بكم يا أبنائي الطلاب ... أمامكم المخطط الرسمي المعتمد للاختبارات النهائية ... يمثل خمسة مستويات طاقة رئيسية، بالإضافة إلى مستوى اللانهاية في القمة، وهو مستوى التأين الذي تكون طاقته صفراً ... " +
@@ -748,13 +745,8 @@
         window.speechSynthesis.speak(utterance);
     }
 
-    // نظام توليد مسائل حقيقية بالكامل ومغلقة المعطيات (لا أرقام افتراضية عشوائية) ومطالب موسعة
-    let currentCorrectAnswer = 0;
-    let currentQuizData = {};
-
-    function generateNewQuestion() {
-        document.getElementById('solutionBox').style.display = "none";
-        
+    // دالة مساعدة معزولة ومستقلة لتوليد وحزم معطيات سؤال واحد حقيقي متوافق مع شروط لجان دكاترة الفيزياء
+    function generateSingleScientificQuestion() {
         const atomsList = Object.keys(atomMeta);
         let randomAtom = atomsList[Math.floor(Math.random() * atomsList.length)];
         let atomNameAr = atomDatabase[randomAtom].name;
@@ -779,152 +771,200 @@
         let qType = qTypes[Math.floor(Math.random() * qTypes.length)];
         let quizUnit = Math.random() > 0.5 ? "eV" : "J"; 
 
-        let questionString = "<b>سؤال امتحان رسمي شامل (كامل المعطيات الحقيقية):</b><br>";
+        let questionString = "";
         let correctAnswerValue = 0;
         let unitStr = "";
-        let options = [];
+        let rawOptions = [];
 
-        let constantsText = "<br><small style='color:#555;'>[علماً بأن ثوابت الامتحان: ثابت بلانك h = 6.63 × 10<sup>-34</sup> J·s ، سرعة الضوء c = 3.00 × 10<sup>8</sup> m/s ، شحنة الإلكترون 1 eV = 1.60 × 10<sup>-19</sup> J]</small>";
+        let displayFrom = n_from === "inf" ? "n = \u221E" : "n = " + n_from;
+        let displayTo = "n = " + n_to;
 
         if (qType === "deltaE") {
             if (quizUnit === "eV") {
-                questionString += "انتقل إلكترون في " + atomNameAr + " بين مستويي طاقة، فنتج عن ذلك فوتون منبعث. إذا كانت طاقة المستوى الابتدائي تساوي <span dir='ltr'> " + E_initial_eV.toFixed(2) + " eV</span> وطاقة المستوى النهائي تساوي <span dir='ltr'> " + E_final_eV.toFixed(2) + " eV</span>، احسب <b>طاقة الفوتون المنبعث</b> بوحدة (<span dir='ltr'>eV</span>)؟";
+                questionString = "انتقل إلكترون في " + atomNameAr + " بين مستويي طاقة، فنتج عن ذلك فوتون منبعث. إذا كانت طاقة المستوى الابتدائي تساوي <span dir='ltr'>" + E_initial_eV.toFixed(2) + " eV</span> وطاقة المستوى النهائي تساوي <span dir='ltr'>" + E_final_eV.toFixed(2) + " eV</span>، احسب <b>طاقة الفوتون المنبعث</b> بوحدة (<span dir='ltr'>eV</span>)؟";
                 correctAnswerValue = diff_eV.toFixed(2);
                 unitStr = " eV";
-                
-                options.push(correctAnswerValue);
-                options.push(Math.abs(atomDatabase[randomAtom].eV["2"] - atomDatabase[randomAtom].eV["1"]).toFixed(2)); 
-                options.push(Math.abs(atomDatabase[randomAtom].eV["3"] - atomDatabase[randomAtom].eV["1"]).toFixed(2)); 
-                options.push(Math.abs(E_initial_eV).toFixed(2)); 
+                rawOptions = [correctAnswerValue, Math.abs(atomDatabase[randomAtom].eV["2"] - atomDatabase[randomAtom].eV["1"]).toFixed(2), Math.abs(atomDatabase[randomAtom].eV["3"] - atomDatabase[randomAtom].eV["1"]).toFixed(2), Math.abs(E_initial_eV).toFixed(2)];
             } else {
-                questionString += "انتقل إلكترون في " + atomNameAr + " بين مستويين. إذا علمت أن طاقة المستوى الذي كان فيه الإلكترون تساوي <span dir='ltr'> " + E_initial_J.toFixed(2) + " × 10<sup>-18</sup> J</span> وطاقة المستوى الذي وصل إليه تساوي <span dir='ltr'> " + E_final_J.toFixed(2) + " × 10<sup>-18</sup> J</span>، احسب <b>طاقة الفوتون الناتج</b> بوحدة الجول (<span dir='ltr'>J</span>)؟";
+                questionString = "انتقل إلكترون في " + atomNameAr + " بين مستويين. إذا علمت أن طاقة المستوى الذي كان فيه الإلكترون تساوي <span dir='ltr'>" + E_initial_J.toFixed(2) + " × 10<sup>-18</sup> J</span> وطاقة المستوى الذي وصل إليه تساوي <span dir='ltr'>" + E_final_J.toFixed(2) + " × 10<sup>-18</sup> J</span>، احسب <b>طاقة الفوتون الناتج</b> بوحدة الجول (<span dir='ltr'>J</span>)؟";
                 correctAnswerValue = diff_J.toFixed(2);
                 unitStr = " × 10<sup>-18</sup> J";
-                
-                options.push(correctAnswerValue);
-                options.push(Math.abs(atomDatabase[randomAtom].J["2"] - atomDatabase[randomAtom].J["1"]).toFixed(2));
-                options.push(Math.abs(atomDatabase[randomAtom].J["3"] - atomDatabase[randomAtom].J["1"]).toFixed(2));
-                options.push(Math.abs(E_initial_J).toFixed(2));
+                rawOptions = [correctAnswerValue, Math.abs(atomDatabase[randomAtom].J["2"] - atomDatabase[randomAtom].J["1"]).toFixed(2), Math.abs(atomDatabase[randomAtom].J["3"] - atomDatabase[randomAtom].J["1"]).toFixed(2), Math.abs(E_initial_J).toFixed(2)];
             }
         } 
         else if (qType === "lambda") {
-            questionString += "سقط إلكترون في " + atomNameAr + " من مستوى طاقة ابتدائي طاقته <span dir='ltr'> " + E_initial_J.toFixed(2) + " × 10<sup>-18</sup> J</span> واستقر في مستوى طاقة نهائي طاقته <span dir='ltr'> " + E_final_J.toFixed(2) + " × 10<sup>-18</sup> J</span>، احسب <b>الطول الموجي</b> للفوتون المنبعث بوحدة النانومتر (<span dir='ltr'>nm</span>)؟";
+            questionString = "سقط إلكترون في " + atomNameAr + " من مستوى طاقة ابتدائي طاقته <span dir='ltr'>" + E_initial_J.toFixed(2) + " × 10<sup>-18</sup> J</span> واستقر في مستوى طاقة نهائي طاقته <span dir='ltr'>" + E_final_J.toFixed(2) + " × 10<sup>-18</sup> J</span>، احسب <b>الطول الموجي</b> للفوتون المنبعث بوحدة النانومتر (<span dir='ltr'>nm</span>)؟";
             correctAnswerValue = waveNM;
             unitStr = " nm";
-            
-            options.push(correctAnswerValue);
             let altFreq1 = (Math.abs(atomDatabase[randomAtom].J["2"] - atomDatabase[randomAtom].J["1"]) * 1e-18) / h;
-            options.push(Math.round((c / altFreq1) * 1e9)); 
             let altFreq2 = (Math.abs(atomDatabase[randomAtom].J["3"] - atomDatabase[randomAtom].J["2"]) * 1e-18) / h;
-            options.push(Math.round((c / altFreq2) * 1e9));
-            options.push(Math.round(waveNM * 0.5)); 
+            rawOptions = [correctAnswerValue, Math.round((c / altFreq1) * 1e9), Math.round((c / altFreq2) * 1e9), Math.round(waveNM * 0.5)];
         } 
         else if (qType === "frequency") {
-            questionString += "امتص إلكترون مستقر في " + atomNameAr + " فوتوناً أدى إلى إثارته من مستوى طاقة أدنى طاقته <span dir='ltr'> " + E_final_J.toFixed(2) + " × 10<sup>-18</sup> J</span> إلى مستوى طاقة أعلى طاقته <span dir='ltr'> " + E_initial_J.toFixed(2) + " × 10<sup>-18</sup> J</span>، احسب <b>تردد الفوتون الممتص</b> بوحدة الهرتز (<span dir='ltr'>Hz</span>)؟";
+            questionString = "امتص إلكترون مستقر في " + atomNameAr + " فوتوناً أدى إلى إثارته من مستوى طاقة أدنى طاقته <span dir='ltr'>" + E_final_J.toFixed(2) + " × 10<sup>-18</sup> J</span> إلى مستوى طاقة أعلى طاقته <span dir='ltr'>" + E_initial_J.toFixed(2) + " × 10<sup>-18</sup> J</span>، احسب <b>تردد الفوتون الممتص</b> بوحدة الهرتز (<span dir='ltr'>Hz</span>)؟";
             correctAnswerValue = (freq / 1e15).toFixed(2);
             unitStr = " × 10<sup>15</sup> Hz";
-            
-            options.push(correctAnswerValue);
             let altF1 = ((Math.abs(atomDatabase[randomAtom].J["2"] - atomDatabase[randomAtom].J["1"]) * 1e-18) / h) / 1e15;
-            options.push(altF1.toFixed(2));
             let altF2 = ((Math.abs(atomDatabase[randomAtom].J["3"] - atomDatabase[randomAtom].J["1"]) * 1e-18) / h) / 1e15;
-            options.push(altF2.toFixed(2));
-            options.push((freq / 1e15 * 2).toFixed(2));
+            rawOptions = [correctAnswerValue, altF1.toFixed(2), altF2.toFixed(2), (freq / 1e15 * 2).toFixed(2)];
         } 
         else if (qType === "e_initial") {
             if (quizUnit === "eV") {
-                questionString += "يهبط إلكترون في " + atomNameAr + " من مستوى طاقة مجهول كان فيه إلى مستوى طاقة نهائي معلوم طاقته <span dir='ltr'> " + E_final_eV.toFixed(2) + " eV</span>. فإذا انبعث نتيجة هذا الانتقال فوتون يحمل طاقة مقدارها <span dir='ltr'> " + diff_eV.toFixed(2) + " eV</span>، احسب <b>طاقة الإلكترون في المستوى الذي كان فيه</b> بوحدة (<span dir='ltr'>eV</span>)؟";
+                questionString = "يهبط إلكترون في " + atomNameAr + " من مستوى طاقة مجهول كان فيه إلى مستوى طاقة نهائي معلوم طاقته <span dir='ltr'>" + E_final_eV.toFixed(2) + " eV</span>. فإذا انبعث نتيجة هذا الانتقال فوتون يحمل طاقة مقدارها <span dir='ltr'>" + diff_eV.toFixed(2) + " eV</span>، احسب <b>طاقة الإلكترون في المستوى الذي كان فيه</b> بوحدة (<span dir='ltr'>eV</span>)؟";
                 correctAnswerValue = E_initial_eV.toFixed(2);
                 unitStr = " eV";
-                
-                options.push(correctAnswerValue);
-                options.push(atomDatabase[randomAtom].eV["1"].toFixed(2));
-                options.push(atomDatabase[randomAtom].eV["2"].toFixed(2));
-                options.push((E_final_eV - diff_eV).toFixed(2)); 
+                rawOptions = [correctAnswerValue, atomDatabase[randomAtom].eV["1"].toFixed(2), atomDatabase[randomAtom].eV["2"].toFixed(2), (E_final_eV - diff_eV).toFixed(2)];
             } else {
-                questionString += "يهبط إلكترون في " + atomNameAr + " من مستوى طاقة مجهول إلى مستوى طاقة نهائي معلوم طاقته <span dir='ltr'> " + E_final_J.toFixed(2) + " × 10<sup>-18</sup> J</span>. فإذا انبعث نتيجة هذا الانتقال فوتون يحمل طاقة مقدارها <span dir='ltr'> " + diff_J.toFixed(2) + " × 10<sup>-18</sup> J</span>، احسب <b>طاقة الإلكترون في المستوى الابتدائي الذي كان فيه</b> بوحدة (<span dir='ltr'>J</span>)؟";
+                questionString = "يهبط إلكترون في " + atomNameAr + " من مستوى طاقة مجهول إلى مستوى طاقة نهائي معلوم طاقته <span dir='ltr'>" + E_final_J.toFixed(2) + " × 10<sup>-18</sup> J</span>. فإذا انبعث نتيجة هذا الانتقال فوتون يحمل طاقة مقدارها <span dir='ltr'>" + diff_J.toFixed(2) + " × 10<sup>-18</sup> J</span>، احسب <b>طاقة الإلكترون في المستوى الابتدائي الذي كان فيه</b> بوحدة (<span dir='ltr'>J</span>)؟";
                 correctAnswerValue = E_initial_J.toFixed(2);
                 unitStr = " × 10<sup>-18</sup> J";
-                
-                options.push(correctAnswerValue);
-                options.push(atomDatabase[randomAtom].J["1"].toFixed(2));
-                options.push(atomDatabase[randomAtom].J["2"].toFixed(2));
-                options.push((E_final_J - parseFloat(diff_J)).toFixed(2));
+                rawOptions = [correctAnswerValue, atomDatabase[randomAtom].J["1"].toFixed(2), atomDatabase[randomAtom].J["2"].toFixed(2), (E_final_J - parseFloat(diff_J)).toFixed(2)];
             }
         } 
         else if (qType === "e_final") {
             if (quizUnit === "eV") {
-                questionString += "انتقل إلكترون في " + atomNameAr + " من مستوى طاقة ابتدائي معلوم طاقته <span dir='ltr'> " + E_initial_eV.toFixed(2) + " eV</span> إلى مستوى طاقة أدنى سيصل إليه. فإذا كانت طاقة الفوتون المنبعث المصاحب تساوى <span dir='ltr'> " + diff_eV.toFixed(2) + " eV</span>، احسب <b>طاقة الإلكترون في المستوى الذي سيصل إليه</b> بوحدة (<span dir='ltr'>eV</span>)؟";
+                questionString = "انتقل إلكترون في " + atomNameAr + " من مستوى طاقة ابتدائي معلوم طاقته <span dir='ltr'>" + E_initial_eV.toFixed(2) + " eV</span> إلى مستوى طاقة أدنى سيصل إليه. فإذا كانت طاقة الفوتون المنبعث المصاحب تساوى <span dir='ltr'>" + diff_eV.toFixed(2) + " eV</span>، احسب <b>طاقة الإلكترون في المستوى الذي سيصل إليه</b> بوحدة (<span dir='ltr'>eV</span>)؟";
                 correctAnswerValue = E_final_eV.toFixed(2);
                 unitStr = " eV";
-                
-                options.push(correctAnswerValue);
-                options.push(atomDatabase[randomAtom].eV["1"].toFixed(2));
-                options.push(atomDatabase[randomAtom].eV["2"].toFixed(2));
-                options.push((E_initial_eV + parseFloat(diff_eV)).toFixed(2));
+                rawOptions = [correctAnswerValue, atomDatabase[randomAtom].eV["1"].toFixed(2), atomDatabase[randomAtom].eV["2"].toFixed(2), (E_initial_eV + parseFloat(diff_eV)).toFixed(2)];
             } else {
-                questionString += "انتقل إلكترون في " + atomNameAr + " من مستوى طاقة ابتدائي معلوم طاقته <span dir='ltr'> " + E_initial_J.toFixed(2) + " × 10<sup>-18</sup> J</span> إلى مستوى طاقة أدنى سيصل إليه. فإذا انبعث فوتون طاقته تساوى <span dir='ltr'> " + diff_J.toFixed(2) + " × 10<sup>-18</sup> J</span>، احسب <b>طاقة الإلكترون في المستوى النهائي الذي سيصل إليه</b> بوحدة الجول (<span dir='ltr'>J</span>)؟";
+                questionString = "انتقل إلكترون في " + atomNameAr + " من مستوى طاقة ابتدائي معلوم طاقته <span dir='ltr'>" + E_initial_J.toFixed(2) + " × 10<sup>-18</sup> J</span> إلى مستوى طاقة أدنى سيصل إليه. فإذا انبعث فوتون طاقته تساوى <span dir='ltr'>" + diff_J.toFixed(2) + " × 10<sup>-18</sup> J</span>، احسب <b>طاقة الإلكترون في المستوى النهائي الذي سيصل إليه</b> بوحدة الجول (<span dir='ltr'>J</span>)؟";
                 correctAnswerValue = E_final_J.toFixed(2);
                 unitStr = " × 10<sup>-18</sup> J";
-                
-                options.push(correctAnswerValue);
-                options.push(atomDatabase[randomAtom].J["1"].toFixed(2));
-                options.push(atomDatabase[randomAtom].J["2"].toFixed(2));
-                options.push((E_initial_J + parseFloat(diff_J)).toFixed(2));
+                rawOptions = [correctAnswerValue, atomDatabase[randomAtom].J["1"].toFixed(2), atomDatabase[randomAtom].J["2"].toFixed(2), (E_initial_J + parseFloat(diff_J)).toFixed(2)];
             }
         } 
         else if (qType === "momentum") {
-            questionString += "انتقل إلكترون في " + atomNameAr + " من مستوى طاقة علوي طاقته <span dir='ltr'> " + E_initial_J.toFixed(2) + " × 10<sup>-18</sup> J</span> إلى مستوى طاقة أدنى طاقته <span dir='ltr'> " + E_final_J.toFixed(2) + " × 10<sup>-18</sup> J</span>. احسب مقدار <b>كمية تحرك الفوتون المنبعث</b> بوحدة النيوتن في ثانية (<span dir='ltr'>N·s</span>)؟";
+            questionString = "انتقل إلكترون في " + atomNameAr + " من مستوى طاقة علوي طاقته <span dir='ltr'>" + E_initial_J.toFixed(2) + " × 10<sup>-18</sup> J</span> إلى مستوى طاقة أدنى طاقته <span dir='ltr'>" + E_final_J.toFixed(2) + " × 10<sup>-18</sup> J</span>. احسب مقدار <b>كمية تحرك الفوتون المنبعث</b> بوحدة النيوتن في ثانية (<span dir='ltr'>N·s</span>)؟";
             correctAnswerValue = (momentum / 1e-27).toFixed(2);
             unitStr = " × 10<sup>-27</sup> N·s";
-            
-            options.push(correctAnswerValue);
             let altM1 = ((Math.abs(atomDatabase[randomAtom].J["2"] - atomDatabase[randomAtom].J["1"]) * 1e-18) / c) / 1e-27;
-            options.push(altM1.toFixed(2));
             let altM2 = ((Math.abs(atomDatabase[randomAtom].J["3"] - atomDatabase[randomAtom].J["1"]) * 1e-18) / c) / 1e-27;
-            options.push(altM2.toFixed(2));
-            options.push((momentum / 1e-27 * 1.5).toFixed(2));
+            rawOptions = [correctAnswerValue, altM1.toFixed(2), altM2.toFixed(2), (momentum / 1e-27 * 1.5).toFixed(2)];
         }
 
-        questionString += constantsText;
+        let uniqueOpts = [...new Set(rawOptions)];
+        while (uniqueOpts.length < 4) {
+            uniqueOpts.push((parseFloat(correctAnswerValue) + (uniqueOpts.length * 1.15)).toFixed(2));
+        }
+        uniqueOpts.sort(() => Math.random() - 0.5);
 
-        currentQuizData = {
-            qType: qType,
-            quizUnit: quizUnit,
-            atomKey: randomAtom,
-            atomName: atomNameAr,
-            E_initial_eV: E_initial_eV,
-            E_final_eV: E_final_eV,
-            E_initial_J: E_initial_J,
-            E_final_J: E_final_J,
-            diff_eV: diff_eV.toFixed(2),
-            diff_J: diff_J.toFixed(2),
-            waveNM: waveNM,
-            freq: freq,
-            momentum: momentum
+        return {
+            text: questionString,
+            correct: correctAnswerValue,
+            unit: unitStr,
+            options: uniqueOpts
         };
+    }
 
-        document.getElementById('questionContainer').innerHTML = questionString;
+    function generateNewQuestion() {
+        document.getElementById('solutionBox').style.display = "none";
+        let q = generateSingleScientificQuestion();
+        
+        currentQuizData = q; // تخزين مؤقت للسؤال النشط بالواجهة
+        currentCorrectAnswer = q.correct;
 
-        let uniqueOptions = [...new Set(options)];
-        while (uniqueOptions.length < 4) {
-            let backupVal = (parseFloat(correctAnswerValue) + (uniqueOptions.length * 1.15)).toFixed(2);
-            uniqueOptions.push(backupVal);
-        }
-
-        uniqueOptions.sort(() => Math.random() - 0.5);
-        currentCorrectAnswer = correctAnswerValue;
+        document.getElementById('questionContainer').innerHTML = q.text + "<br><small style='color:#555;'>[علماً بأن ثوابت الامتحان: ثابت بلانك h = 6.63 × 10<sup>-34</sup> J·s ، سرعة الضوء c = 3.00 × 10<sup>8</sup> m/s ، شحنة الإلكترون 1 eV = 1.60 × 10<sup>-19</sup> J]</small>";
 
         const optionsContainer = document.getElementById('optionsContainer');
         optionsContainer.innerHTML = "";
         
-        uniqueOptions.forEach(opt => {
+        q.options.forEach(opt => {
             let btn = document.createElement('button');
             btn.className = "option-btn";
-            btn.innerHTML = opt + unitStr;
+            btn.innerHTML = opt + q.unit;
             btn.onclick = function() { checkStudentAnswer(opt, btn); };
             optionsContainer.appendChild(btn);
         });
+    }
+
+    // دالة توليد وطباعة ورقة الامتحان المكونة من 10 أسئلة شاملة ومفتاح الإجابة الرقمي من 1 إلى 10 بالأسفل
+    function printExamPaperPDF() {
+        let examQuestions = [];
+        for (let i = 0; i < 10; i++) {
+            examQuestions.push(generateSingleScientificQuestion());
+        }
+
+        // فتح نافذة جديدة للتحضير النظيف لعملية الطباعة
+        let pWin = window.open('', '_blank');
+        
+        let htmlStr = `
+        <!DOCTYPE html>
+        <html lang="ar" dir="rtl">
+        <head>
+            <meta charset="UTF-8">
+            <title>ورقة عمل امتحانية - مستويات الطاقة الذرية</title>
+            <style>
+                body { font-family: 'Arial', sans-serif; padding: 30px; background-weight: 900; background: #fff; color: #000; }
+                .header { text-align: center; border: 3px solid #000; padding: 15px; margin-bottom: 30px; }
+                .header h2 { margin: 0 0 10px 0; font-size: 20px; }
+                .q-block { margin-bottom: 25px; page-break-inside: avoid; line-height: 1.6; font-size: 14px; }
+                .q-title { font-weight: bold; margin-bottom: 10px; }
+                .opt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-right: 20px; margin-top: 5px; font-weight: bold; }
+                .opt-item { direction: ltr; text-align: right; }
+                .constants { font-size: 12px; margin-bottom: 20px; border-bottom: 2px dashed #000; padding-bottom: 10px; font-weight: bold; }
+                .answer-key-box { margin-top: 50px; border: 3px solid #000; padding: 15px; page-break-inside: avoid; }
+                .answer-key-box h3 { margin: 0 0 15px 0; text-align: center; font-size: 16px; border-bottom: 2px solid #000; padding-bottom: 5px; }
+                .key-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; text-align: center; font-size: 14px; font-weight: bold; }
+                .key-item { border: 1px solid #000; padding: 8px; background: #f9f9f9; direction: ltr; }
+                @media print {
+                    body { padding: 0; }
+                    .no-print { display: none; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h2>وزارة التربية والتعليم - سلطنة عمان</h2>
+                <h2>ورقة عمل تدريبية شاملة: درس مستويات الطاقة الكهرومغناطيسية والذرية</h2>
+                <h3 style="margin:5px 0 0 0;">إعداد الأستاذ: أنور البلوشي (92818606)</h3>
+            </div>
+
+            <div class="constants">
+                <b>[الثوابت المنهجية المعتمدة للحل]:</b> ثابت بلانك h = 6.63 × 10<sup>-34</sup> J·s &nbsp;|&nbsp; سرعة الضوء c = 3.00 × 10<sup>8</sup> m/s &nbsp;|&nbsp; شحنة الإلكترون 1 eV = 1.60 × 10<sup>-19</sup> J
+            </div>
+        `;
+
+        // إضافة الأسئلة العشرة للورقة المطبوعة مع ترميز الخيارات برموز إنجليزية (A, B, C, D)
+        examQuestions.forEach((q, idx) => {
+            let labels = ["A", "B", "C", "D"];
+            htmlStr += `
+            <div class="q-block">
+                <div class="q-title">السؤال (${idx + 1}): ${q.text}</div>
+                <div class="opt-grid">
+            `;
+            q.options.forEach((opt, oIdx) => {
+                htmlStr += `<div class="opt-item"><b>${labels[oIdx]})</b> ${opt} ${q.unit}</div>`;
+            });
+            htmlStr += `
+                </div>
+            </div>
+            `;
+        });
+
+        // إضافة صندوق مفتاح الإجابة الرقمي المختصر من 1 إلى 10 في نهاية الورقة مباشرة دون تفاصيل الحل
+        htmlStr += `
+            <div class="answer-key-box">
+                <h3>📝 مفتاح الإجابة النموذجية القصير (للمعلم والمصحح الفوري)</h3>
+                <div class="key-grid">
+        `;
+        examQuestions.forEach((q, idx) => {
+            htmlStr += `<div class="key-item">Q(${idx + 1}): <b>${q.correct} ${q.unit}</b></div>`;
+        });
+        htmlStr += `
+                </div>
+            </div>
+        </body>
+        </html>
+        `;
+
+        pWin.document.write(htmlStr);
+        pWin.document.close();
+        
+        // تشغيل أمر الطباعة الأصلي للمتصفح (والذي يتيح الحفظ كـ PDF فوراً)
+        setTimeout(() => {
+            pWin.print();
+        }, 500);
     }
 
     function checkStudentAnswer(selectedOpt, selectedButton) {
@@ -962,13 +1002,13 @@
         let textHTML = "";
         let d = currentQuizData;
 
-        textHTML += "<b>الخطوة 1:</b> استخراج المعطيات الرقمية المباشرة الواردة بنص مسألة الامتحان للـ (" + d.atomName + "):<br>";
+        textHTML += "<b>الخطوة 1:</b> استخراج المعطيات الرقمية المباشرة الواردة بنص مسألة الامتحان:<br>";
         textHTML += "<div class='math-step-block'>";
-        textHTML += "E<sub>high</sub> = " + d.E_initial_eV.toFixed(2) + " eV = " + d.E_initial_J.toFixed(2) + " × 10<sup>-18</sup> J<br>";
-        textHTML += "E<sub>low</sub> = " + d.E_final_eV.toFixed(2) + " eV = " + d.E_final_J.toFixed(2) + " × 10<sup>-18</sup> J";
+        textHTML += "E<sub>high</sub> = " + d.E_initial_eV + " eV = " + d.E_initial_J + " × 10<sup>-18</sup> J<br>";
+        textHTML += "E<sub>low</sub> = " + d.E_final_eV + " eV = " + d.E_final_J + " × 10<sup>-18</sup> J";
         textHTML += "</div>";
 
-        textHTML += "<b>الخطوة 2:</b> تطبيق قانون فرق الطاقة الأساسي لبور لإيجاد طاقة الفوتون الصافي (ΔE):<br>";
+        textHTML += "<b>الخطوة 2:</b> تطبيق قانون فرق الطاقة الأساسي لبور لإيجاد طاقة الفوتون الصاحة (ΔE):<br>";
         textHTML += "<div class='math-step-block'>";
         textHTML += "ΔE = |E<sub>high</sub> - E<sub>low</sub>|<br>";
         textHTML += "ΔE (in eV) = " + d.diff_eV + " eV<br>";
@@ -1003,9 +1043,9 @@
             textHTML += "<div class='math-step-block'>";
             textHTML += "E<sub>high</sub> = E<sub>low</sub> + ΔE<br>";
             if (d.quizUnit === "eV") {
-                textHTML += "E<sub>high</sub> = (" + d.E_final_eV.toFixed(2) + ") + (" + d.diff_eV + ") = <b>" + d.E_initial_eV.toFixed(2) + " eV</b>";
+                textHTML += "E<sub>high</sub> = (" + d.E_final_eV + ") + (" + d.diff_eV + ") = <b>" + d.E_initial_eV + " eV</b>";
             } else {
-                textHTML += "E<sub>high</sub> = (" + d.E_final_J.toFixed(2) + " + " + d.diff_J + ") × 10<sup>-18</sup> = <b>" + d.E_initial_J.toFixed(2) + " × 10<sup>-18</sup> J</b>";
+                textHTML += "E<sub>high</sub> = (" + d.E_final_J + " + " + d.diff_J + ") × 10<sup>-18</sup> = <b>" + d.E_initial_J + " × 10<sup>-18</sup> J</b>";
             }
             textHTML += "</div>";
         } 
@@ -1014,9 +1054,9 @@
             textHTML += "<div class='math-step-block'>";
             textHTML += "E<sub>low</sub> = E<sub>high</sub> - ΔE<br>";
             if (d.quizUnit === "eV") {
-                textHTML += "E<sub>low</sub> = (" + d.E_initial_eV.toFixed(2) + ") - (" + d.diff_eV + ") = <b>" + d.E_final_eV.toFixed(2) + " eV</b>";
+                textHTML += "E<sub>low</sub> = (" + d.E_initial_eV + ") - (" + d.diff_eV + ") = <b>" + d.E_final_eV + " eV</b>";
             } else {
-                textHTML += "E<sub>low</sub> = (" + d.E_initial_J.toFixed(2) + " - " + d.diff_J + ") × 10<sup>-18</sup> = <b>" + d.E_final_J.toFixed(2) + " × 10<sup>-18</sup> J</b>";
+                textHTML += "E<sub>low</sub> = (" + d.E_initial_J + " - " + d.diff_J + ") × 10<sup>-18</sup> = <b>" + d.E_final_J + " × 10<sup>-18</sup> J</b>";
             }
             textHTML += "</div>";
         }
